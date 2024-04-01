@@ -37,7 +37,7 @@ class QuoteResponse(BaseModel):
     quote: Quote
 
 
-class FieldType(str, Enum):
+class QuoteField(str, Enum):
     QUOTE = "quote"
     FUNDAMENTAL = "fundamental"
     EXTENDED = "extended"
@@ -47,5 +47,5 @@ class FieldType(str, Enum):
 
 class QuoteRequest(BaseModel):
     symbols: list[str]
-    fields: list[FieldType] = Field(default=["quote", "reference"])
+    fields: list[QuoteField] = Field(default=["quote", "reference"])
     indicative: bool = False
