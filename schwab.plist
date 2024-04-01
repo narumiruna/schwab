@@ -6,7 +6,7 @@
     <string>com.narumi.schwab</string>
     <key>ProgramArguments</key>
     <array>
-      <string>schwab</string>
+      <string>/home/narumi/.local/bin/schwab</string>
     </array>
     <key>KeepAlive</key>
     <true />
