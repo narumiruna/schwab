@@ -1,5 +1,3 @@
-import os
-
 from dotenv import find_dotenv
 from dotenv import load_dotenv
 
