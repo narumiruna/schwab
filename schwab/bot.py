@@ -39,9 +39,9 @@ class SchwabBot:
         if str(update.message.chat_id) not in self.chat_ids:
             return
 
-        s = update.message.text.lstrip("/cs").strip().upper()
+        symbols = update.message.text.lstrip("/cs").strip().upper().split(" ")
 
-        req = QuoteRequest(symbols=s.split(" "))
+        req = QuoteRequest(symbols=symbols)
         resp = self.client.get_quote(req)
 
         reply_text = ""
