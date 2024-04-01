@@ -10,7 +10,7 @@ env:
     PLIST_DIR: /Users/narumi/Library/LaunchAgents
       
 jobs:
-  cron:
+  deploy:
     runs-on: self-hosted
     strategy:
       max-parallel: 1
