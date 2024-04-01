@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 
+from loguru import logger
 from telegram import Update
 from telegram.ext import Application
 from telegram.ext import CommandHandler
@@ -35,7 +36,9 @@ class SchwabBot:
         return cls(client=client, token=token, chat_ids=chat_id.split(","))
 
     async def quote(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        if str(update.message.chat_id) not in self.chat_ids:
+        chat_id = str(update.message.chat_id)
+        if chat_id not in self.chat_ids:
+            logger.info("chat_id: {} is not in the whitelist, skip")
             return
 
         symbols = update.message.text.lstrip("/cs").strip().upper().split(" ")
