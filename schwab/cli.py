@@ -5,7 +5,7 @@ from .bot import SchwabBot
 
 
 def main():
-    dotfile = find_dotenv()
+    dotfile = find_dotenv(raise_error_if_not_found=True)
     print(dotfile)
     load_dotenv()
     SchwabBot.from_env()
