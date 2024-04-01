@@ -33,7 +33,7 @@ class SchwabBot:
         if chat_id is None:
             raise ValueError("BOT_CHAT_ID is not set")
 
-        return cls(client=client, token=token, chat_id=chat_id.split(","))
+        return cls(client=client, token=token, chat_ids=chat_id.split(","))
 
     async def quote(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if str(update.message.chat_id) not in self.chat_ids:
