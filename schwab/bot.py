@@ -12,11 +12,12 @@ from .quote import QuoteRequest
 
 
 class SchwabBot:
-    def __init__(self, client: Client, token: str, chat_id: str) -> None:
+    def __init__(self, client: Client, token: str, chat_ids: list[str]) -> None:
         self.client = client
+        self.chat_ids = chat_ids
 
         self.app = Application.builder().token(token).build()
-        self.app.add_handler(CommandHandler("show_chats", self.show_chats))
+        self.app.add_handler(CommandHandler("chat_id", self.show_chat_id))
         self.app.add_handler(CommandHandler("cs", self.quote))
         self.app.run_polling(allowed_updates=Update.ALL_TYPES)
 
@@ -31,9 +32,13 @@ class SchwabBot:
         chat_id = os.getenv("BOT_CHAT_ID")
         if chat_id is None:
             raise ValueError("BOT_CHAT_ID is not set")
-        return cls(client=client, token=token, chat_id=chat_id)
+
+        return cls(client=client, token=token, chat_id=chat_id.split(","))
 
     async def quote(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if str(update.message.chat_id) not in self.chat_ids:
+            return
+
         s = update.message.text.lstrip("/cs").strip().upper()
 
         req = QuoteRequest(symbols=s.split(" "))
@@ -52,14 +57,5 @@ class SchwabBot:
             )
         await update.message.reply_text(reply_text)
 
-    async def show_chats(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-        """Shows which chats the bot is in"""
-        user_ids = ", ".join(str(uid) for uid in context.bot_data.setdefault("user_ids", set()))
-        group_ids = ", ".join(str(gid) for gid in context.bot_data.setdefault("group_ids", set()))
-        channel_ids = ", ".join(str(cid) for cid in context.bot_data.setdefault("channel_ids", set()))
-        text = (
-            f"@{context.bot.username} is currently in a conversation with the user IDs {user_ids}."
-            f" Moreover it is a member of the groups with IDs {group_ids} "
-            f"and administrator in the channels with IDs {channel_ids}."
-        )
-        await update.effective_message.reply_text(text)
+    async def show_chat_id(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        await update.message.reply_text(update.message.chat_id)

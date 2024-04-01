@@ -30,6 +30,7 @@ jobs:
             echo SCHWAB_CLIENT_SECRET=${{ secrets.SCHWAB_CLIENT_SECRET }} >> .env
             echo SCHWAB_REFRESH_TOKEN=${{ secrets.SCHWAB_REFRESH_TOKEN }} >> .env
             echo BOT_TOKEN=${{ secrets.BOT_TOKEN }} >> .env
+            echo BOT_CHAT_ID=${{ vars.BOT_CHAT_ID }} >> .env
       - name: Stop and disable service
         continue-on-error: true
         working-directory: ${{ env.PLIST_DIR }}
