@@ -2,17 +2,14 @@ from dotenv import find_dotenv
 from dotenv import load_dotenv
 
 from schwab.client import Client
-from schwab.quote import QuoteRequest
 
 
 def main() -> None:
     load_dotenv(find_dotenv())
 
     client = Client.from_env()
-    client.get_access_token()
 
-    req = QuoteRequest(symbols=["AAPL", "GBP/USD"])
-    resp = client.get_quote(req)
+    resp = client.get_quote(symbols=["AAPL", "GBP/USD"])
     print(resp)
 
 
