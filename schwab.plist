@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>Label</key>
+    <string>com.narumi.schwab</string>
+    <key>ProgramArguments</key>
+    <array>
+      <string>schwab</string>
+    </array>
+    <key>KeepAlive</key>
+    <true />
+    <key>RunAtLoad</key>
+    <true />
+    <key>UserName</key>
+    <string>narumi</string>
+    <key>WorkingDirectory</key>
+    <string>/Users/narumi/services/schwab</string>
+    <key>StandardOutPath</key>
+    <string>/Users/narumi/services/schwab/stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/narumi/services/schwab/stderr.log</string>
+  </dict>
+</plist>

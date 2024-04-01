@@ -1,0 +1,46 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+  push:
+
+env:
+    UNIT: com.narumi.schwab
+    WORKDIR: /Users/narumi/services/schwab
+    PLIST_DIR: /Users/narumi/Library/LaunchAgents
+      
+jobs:
+  cron:
+    runs-on: self-hosted
+    strategy:
+      max-parallel: 1
+      matrix:
+        python-version: ["3.10"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install
+        run: pipx install .
+      - name: Install package
+        run: pipx install .
+      - name: Create dotenv
+        run: |
+            echo SCHWAB_CLIENT_ID=${{ secrets.SCHWAB_CLIENT_ID }} > .env
+            echo SCHWAB_CLIENT_SECRET=${{ secrets.SCHWAB_CLIENT_SECRET }} >> .env
+            echo SCHWAB_REFRESH_TOKEN=${{ secrets.SCHWAB_REFRESH_TOKEN }} >> .env
+            echo BOT_TOKEN=${{ secrets.BOT_TOKEN }} >> .env
+      - name: Stop and disable service
+        continue-on-error: true
+        working-directory: ${{ env.PLIST_DIR }}
+        run: |
+            launchctl stop ${{ env.UNIT }}
+            launchctl unload schwab.plist
+      - name: Copy files
+        run: |
+          mkdir -p ${{ env.WORKDIR }}
+          mv .env ${{ env.WORKDIR }}
+          mv schwab.plist ${{ env.PLIST_DIR }}
+      - name: Start service
+        working-directory: ${{ env.PLIST_DIR }}
+        run: |
+            launchctl load -w schwab.plist
+            launchctl start ${{ env.UNIT }}

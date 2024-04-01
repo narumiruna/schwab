@@ -9,7 +9,7 @@ def main() -> None:
     load_dotenv(find_dotenv())
 
     client = Client.from_env()
-    client.refresh_token()
+    client.auth()
 
     req = QuoteRequest(symbols=["AAPL", "GBP/USD"])
     resp = client.get_quote(req)

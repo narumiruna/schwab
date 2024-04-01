@@ -1,2 +1,9 @@
+from dotenv import find_dotenv
+from dotenv import load_dotenv
+
+from .bot import SchwabBot
+
+
 def main():
-    print("Hello, World!")
+    load_dotenv(find_dotenv())
+    SchwabBot.from_env()

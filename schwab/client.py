@@ -25,7 +25,7 @@ class Client:
         self.http_client = httpx.Client()
         self.headers = {}
 
-        self.refresh_token()
+        self.auth()
 
     @classmethod
     def from_env(cls) -> Client:
@@ -47,7 +47,7 @@ class Client:
             refresh_token=refresh_token,
         )
 
-    def refresh_token(self) -> None:
+    def auth(self) -> None:
         url = urljoin(BASE_URL, "/v1/oauth/token")
 
         auth_token = b64encode(f"{self.client_id}:{self.client_secret}")
