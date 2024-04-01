@@ -2,14 +2,19 @@ from __future__ import annotations
 
 import base64
 import os
+from datetime import datetime
+from datetime import timedelta
 from urllib.parse import urljoin
 
 import httpx
+from loguru import logger
 
 from .quote import QuoteRequest
 from .quote import QuoteResponse
 
 BASE_URL = "https://api.schwabapi.com/"
+
+REFRESH_TIME = timedelta(minutes=20)
 
 
 def b64encode(s: str) -> str:
@@ -23,9 +28,9 @@ class Client:
         self.refresh_token = refresh_token
 
         self.http_client = httpx.Client()
-        self.headers = {}
 
-        self.auth()
+        self.refreshed_at = datetime(1, 1, 1)
+        self.refresh_access_token()
 
     @classmethod
     def from_env(cls) -> Client:
@@ -47,31 +52,42 @@ class Client:
             refresh_token=refresh_token,
         )
 
-    def auth(self) -> None:
-        url = urljoin(BASE_URL, "/v1/oauth/token")
+    def refresh_access_token(self) -> None:
+        current_time = datetime.now()
+        if current_time - self.refreshed_at < REFRESH_TIME:
+            return
 
-        auth_token = b64encode(f"{self.client_id}:{self.client_secret}")
-        resp = httpx.post(
-            url=url,
-            data={
-                "grant_type": "refresh_token",
-                "refresh_token": self.refresh_token,
-            },
-            headers={
-                "Content-Type": "application/x-www-form-urlencoded",
-                "Authorization": f"Basic {auth_token}",
-            },
-        )
-
-        data: dict = resp.json()
-        access_token = data.get("access_token")
+        self.refreshed_at = current_time
+        logger.info("refresh access token at: {}", current_time)
 
         self.http_client.headers = {
             "accept": "application/json",
-            "Authorization": f"Bearer {access_token}",
+            "Authorization": f"Bearer {self.get_access_token()}",
         }
 
+    def get_access_token(self) -> str:
+        url = urljoin(BASE_URL, "/v1/oauth/token")
+
+        data = {
+            "grant_type": "refresh_token",
+            "refresh_token": self.refresh_token,
+        }
+
+        auth_token = b64encode(f"{self.client_id}:{self.client_secret}")
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": f"Basic {auth_token}",
+        }
+
+        resp = httpx.post(url=url, data=data, headers=headers)
+        resp.raise_for_status()
+
+        data: dict = resp.json()
+        return data.get("access_token")
+
     def get_quote(self, req: QuoteRequest) -> dict[str, QuoteResponse]:
+        self.refresh_access_token()
+
         url = urljoin(BASE_URL, "/marketdata/v1/quotes")
         params = {
             "symbols": ",".join(req.symbols),
