@@ -9,12 +9,8 @@ from urllib.parse import urljoin
 import httpx
 from loguru import logger
 
-from .quote import QuoteRequest
+from .quote import QuoteField
 from .quote import QuoteResponse
-
-BASE_URL = "https://api.schwabapi.com/"
-
-REFRESH_TIME = timedelta(minutes=20)
 
 
 def b64encode(s: str) -> str:
@@ -22,15 +18,22 @@ def b64encode(s: str) -> str:
 
 
 class Client:
-    def __init__(self, client_id: str, client_secret: str, refresh_token: str) -> None:
+    def __init__(
+        self,
+        client_id: str,
+        client_secret: str,
+        refresh_token: str,
+        base_url: str = "https://api.schwabapi.com/",
+        refresh_time: timedelta = timedelta(minutes=20),
+    ) -> None:
         self.client_id = client_id
         self.client_secret = client_secret
         self.refresh_token = refresh_token
-
-        self.http_client = httpx.Client()
+        self.base_url = base_url
+        self.refresh_time = refresh_time
 
         self.refreshed_at = datetime(1, 1, 1)
-        self.refresh_access_token()
+        self.access_token = ""
 
     @classmethod
     def from_env(cls) -> Client:
@@ -52,21 +55,22 @@ class Client:
             refresh_token=refresh_token,
         )
 
-    def refresh_access_token(self) -> None:
+    def build_url(self, url: str) -> str:
+        return urljoin(self.base_url, url)
+
+    def append_access_token(self, headers: dict) -> dict:
         current_time = datetime.now()
-        if current_time - self.refreshed_at < REFRESH_TIME:
-            return
+        if current_time - self.refreshed_at > self.refresh_time:
+            logger.info("refresh access token at: {}", current_time)
+            self.access_token = self.get_access_token()
+            self.refreshed_at = current_time
 
-        self.refreshed_at = current_time
-        logger.info("refresh access token at: {}", current_time)
+        headers["Authorization"] = f"Bearer {self.access_token}"
 
-        self.http_client.headers = {
-            "accept": "application/json",
-            "Authorization": f"Bearer {self.get_access_token()}",
-        }
+        return headers
 
     def get_access_token(self) -> str:
-        url = urljoin(BASE_URL, "/v1/oauth/token")
+        url = self.build_url("/v1/oauth/token")
 
         data = {
             "grant_type": "refresh_token",
@@ -85,17 +89,24 @@ class Client:
         data: dict = resp.json()
         return data.get("access_token")
 
-    def get_quote(self, req: QuoteRequest) -> dict[str, QuoteResponse]:
-        self.refresh_access_token()
+    def get_quote(
+        self, symbols: list[str], fields: list[QuoteField] | None = None, indicative: bool = False
+    ) -> dict[str, QuoteResponse]:
+        if fields is None:
+            fields = ["quote", "reference"]
 
-        url = urljoin(BASE_URL, "/marketdata/v1/quotes")
+        url = self.build_url("/marketdata/v1/quotes")
+
         params = {
-            "symbols": ",".join(req.symbols),
-            "fields": ",".join(req.fields),
-            "indicative": req.indicative,
+            "symbols": ",".join(symbols),
+            "fields": ",".join(fields),
+            "indicative": indicative,
         }
 
-        resp = self.http_client.get(url=url, params=params)
+        headers = {"accept": "application/json"}
+        headers = self.append_access_token(headers)
+
+        resp = httpx.get(url=url, params=params, headers=headers)
         resp.raise_for_status()
 
         data = resp.json()

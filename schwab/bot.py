@@ -8,7 +8,6 @@ from telegram.ext import CommandHandler
 from telegram.ext import ContextTypes
 
 from .client import Client
-from .quote import QuoteRequest
 
 
 class SchwabBot:
@@ -41,8 +40,7 @@ class SchwabBot:
 
         symbols = update.message.text.lstrip("/cs").strip().upper().split(" ")
 
-        req = QuoteRequest(symbols=symbols)
-        resp = self.client.get_quote(req)
+        resp = self.client.get_quote(symbols)
 
         reply_text = ""
         for symbol, data in resp.items():
