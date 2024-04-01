@@ -21,7 +21,7 @@ jobs:
       - name: Install
         run: pipx install .
       - name: Install package
-        run: pipx install .
+        run: pipx install -U .
       - name: Create dotenv
         run: |
             echo SCHWAB_CLIENT_ID=${{ secrets.SCHWAB_CLIENT_ID }} > .env
