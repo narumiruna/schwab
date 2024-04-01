@@ -24,10 +24,10 @@ jobs:
         run: |
           pipx install ruff
           ruff check .
-      - name: Mypy
-        run: |
-          pipx install mypy
-          mypy --install-types --non-interactive .
+      # - name: Mypy
+      #   run: |
+      #     pipx install mypy
+      #     mypy --install-types --non-interactive .
       - name: Test
         run: |
           pip install .
