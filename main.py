@@ -9,7 +9,7 @@ def main() -> None:
 
     client = Client.from_env()
 
-    resp = client.get_quote(symbols=["AAPL", "GBP/USD"])
+    resp = client.query_quotes(symbols=["AAPL", "GBP/USD"])
     print(resp)
 
 

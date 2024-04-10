@@ -43,7 +43,7 @@ class SchwabBot:
 
         symbols = update.message.text.lstrip("/cs").strip().upper().split(" ")
 
-        resp = self.client.get_quote(symbols)
+        resp = self.client.query_quotes(symbols)
 
         reply_text = ""
         for symbol, data in resp.items():

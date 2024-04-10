@@ -7,7 +7,6 @@ from datetime import timedelta
 from urllib.parse import urljoin
 
 import httpx
-from loguru import logger
 
 from .quote import QuoteField
 from .quote import QuoteResponse
@@ -32,8 +31,8 @@ class Client:
         self.base_url = base_url
         self.refresh_time = refresh_time
 
+        self.headers = {"accept": "application/json"}
         self.refreshed_at = datetime(1, 1, 1)
-        self.access_token = ""
 
     @classmethod
     def from_env(cls) -> Client:
@@ -58,18 +57,14 @@ class Client:
     def build_url(self, url: str) -> str:
         return urljoin(self.base_url, url)
 
-    def append_access_token(self, headers: dict) -> dict:
+    def refresh_access_token(self) -> None:
         current_time = datetime.now()
         if current_time - self.refreshed_at > self.refresh_time:
-            logger.info("refresh access token at: {}", current_time)
-            self.access_token = self.get_access_token()
+            token = self.query_token()
+            self.headers["Authorization"] = f"Bearer {token}"
             self.refreshed_at = current_time
 
-        headers["Authorization"] = f"Bearer {self.access_token}"
-
-        return headers
-
-    def get_access_token(self) -> str:
+    def query_token(self) -> str:
         url = self.build_url("/v1/oauth/token")
 
         data = {
@@ -89,7 +84,7 @@ class Client:
         data: dict = resp.json()
         return data.get("access_token")
 
-    def get_quote(
+    def query_quotes(
         self, symbols: list[str], fields: list[QuoteField] | None = None, indicative: bool = False
     ) -> dict[str, QuoteResponse]:
         if fields is None:
@@ -103,13 +98,12 @@ class Client:
             "indicative": indicative,
         }
 
-        headers = {"accept": "application/json"}
-        headers = self.append_access_token(headers)
+        self.refresh_access_token()
 
-        resp = httpx.get(url=url, params=params, headers=headers)
+        resp = httpx.get(url=url, params=params, headers=self.headers)
         resp.raise_for_status()
 
-        data = resp.json()
+        data: dict = resp.json()
 
         if "errors" in data:
             raise httpx.HTTPError(str(data["errors"]))
