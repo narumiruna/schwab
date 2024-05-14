@@ -60,19 +60,20 @@ class SchwabBot:
             #     f"▪️52 Week Low: {data.quote.field_52_week_low}\n"
             #     "\n"
             # )
-            reply_text += (
-                f"▪️ {symbol}"
-                f", Open: {data.quote.open_price}"
-                f", High: {data.quote.high_price}"
-                f", Low: {data.quote.low_price}"
-                f", Close: {data.quote.close_price}"
-                f", Last: {data.quote.last_price}"
-                f", Net Change: {data.quote.net_percent_change:.2f}%"
-                f", 52 Week High: {data.quote.field_52_week_high}"
-                f", 52 Week Low: {data.quote.field_52_week_low}"
-                f"\n"
-            )
-            reply_text += str(data.quote) + "\n"
+            # reply_text += (
+            #     f"▪️ {symbol}"
+            #     f", Open: {data.quote.open_price}"
+            #     f", High: {data.quote.high_price}"
+            #     f", Low: {data.quote.low_price}"
+            #     f", Close: {data.quote.close_price}"
+            #     f", Last: {data.quote.last_price}"
+            #     f", Net Change: {data.quote.net_percent_change:.2f}%"
+            #     f", 52 Week High: {data.quote.field_52_week_high}"
+            #     f", 52 Week Low: {data.quote.field_52_week_low}"
+            #     f"\n"
+            # )
+            # reply_text += str(data.quote) + "\n"
+            reply_text += str(data) + "\n"
         await update.message.reply_text(reply_text)
 
     async def show_chat_id(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

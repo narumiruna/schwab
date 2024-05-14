@@ -36,6 +36,17 @@ class QuoteResponse(BaseModel):
     symbol: str
     quote: Quote
 
+    def __str__(self) -> str:
+        format_string = f"▪️ {self.symbol}"
+
+        quote = self.quote.model_dump(exclude_none=True, by_alias=True)
+        for k, v in quote.items():
+            if v == 0:
+                continue
+            format_string += f",{k}: {v}"
+
+        return format_string
+
 
 class QuoteField(str, Enum):
     QUOTE = "quote"
