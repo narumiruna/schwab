@@ -104,6 +104,7 @@ class Client:
         resp.raise_for_status()
 
         data: dict = resp.json()
+        print(data)
 
         if "errors" in data:
             raise httpx.HTTPError(str(data["errors"]))

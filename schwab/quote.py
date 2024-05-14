@@ -39,11 +39,29 @@ class QuoteResponse(BaseModel):
     def __str__(self) -> str:
         format_string = f"▪️ {self.symbol}"
 
-        quote = self.quote.model_dump(exclude_none=True)
-        for k, v in quote.items():
-            if v == 0:
-                continue
-            format_string += f",{k}: {v}"
+        if self.quote.open_price:
+            format_string += f", Open: {self.quote.open_price}"
+
+        if self.quote.high_price:
+            format_string += f", High: {self.quote.high_price}"
+
+        if self.quote.low_price:
+            format_string += f", Low: {self.quote.low_price}"
+
+        if self.quote.close_price:
+            format_string += f", Close: {self.quote.close_price}"
+
+        if self.quote.last_price:
+            format_string += f", Last: {self.quote.last_price}"
+
+        if self.quote.mark:
+            format_string += f", Market: {self.quote.mark}"
+
+        if self.quote.net_percent_change:
+            format_string += f", Net Change: {self.quote.net_percent_change:.2f}%"
+
+        format_string += f", 52 Week High: {self.quote.field_52_week_high}"
+        format_string += f", 52 Week Low: {self.quote.field_52_week_low}"
 
         return format_string
 
