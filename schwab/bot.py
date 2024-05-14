@@ -72,6 +72,7 @@ class SchwabBot:
                 f", 52 Week Low: {data.quote.field_52_week_low}"
                 f"\n"
             )
+            reply_text += str(data.quote) + "\n"
         await update.message.reply_text(reply_text)
 
     async def show_chat_id(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
