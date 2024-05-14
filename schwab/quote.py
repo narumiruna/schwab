@@ -39,7 +39,7 @@ class QuoteResponse(BaseModel):
     def __str__(self) -> str:
         format_string = f"▪️ {self.symbol}"
 
-        quote = self.quote.model_dump(exclude_none=True, by_alias=True)
+        quote = self.quote.model_dump(exclude_none=True)
         for k, v in quote.items():
             if v == 0:
                 continue
