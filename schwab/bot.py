@@ -61,7 +61,7 @@ class SchwabBot:
             #     "\n"
             # )
             reply_text += (
-                f"{symbol}"
+                f"▪️ {symbol}"
                 f", Open: {data.quote.open_price}"
                 f", High: {data.quote.high_price}"
                 f", Low: {data.quote.low_price}"
